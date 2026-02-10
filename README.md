@@ -1,7 +1,7 @@
 
 # House Price Predictions
 
-Machine learning project for predicting house prices using XGBoost.
+Machine learning project for predicting house prices experimenting with multiple models.
 
 ## Setup
 
