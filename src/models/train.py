@@ -1,8 +1,6 @@
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
-from sklearn.metrics import root_mean_squared_error,mean_squared_error, r2_score
+from sklearn.metrics import root_mean_squared_error, mean_squared_error, r2_score
 import pickle
 import os
 
@@ -20,31 +18,23 @@ def split_train_test(X, y, test_size=0.2, random_state=42):
 
 def train_models(X_train, X_test, y_train, y_test):
     """
-    Train all models and return their evaluation metrics.
+    Train the best performing model (XGBoost) and return evaluation metrics.
     Returns:
-        results: dict with MSE, RMSE, R2 for each model
+        results: dict with MSE, RMSE, R2
+        model: trained XGBoost model
     """
-    models = {
-        'LinearRegression': LinearRegression(),
-        'Ridge': Ridge(),
-        'Lasso': Lasso(),
-        'RandomForest': RandomForestRegressor(n_estimators=300, random_state=42),
-        'XGB': XGBRegressor(n_estimators=1000, learning_rate=0.01, random_state=42)
-    }
-
-    results = {}
-    trained_models={}
-
-    for name, model in models.items():
-        model.fit(X_train, y_train)
-        trained_models[name] = model
-        y_pred = model.predict(X_test)
-        mse = mean_squared_error(y_test, y_pred)
-        rmse = root_mean_squared_error(y_test, y_pred)
-        r2 = r2_score(y_test, y_pred)
-        results[name] = {'MSE': mse, 'RMSE': rmse, 'R2': r2}
-
-    return results, trained_models['XGB']
+    model = XGBRegressor(n_estimators=1000, learning_rate=0.01, random_state=42)
+    
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = root_mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    
+    results = {'MSE': mse, 'RMSE': rmse, 'R2': r2}
+    
+    return results, model
 
 
 def save_model_and_scaler(model, scaler, model_path='models/xgb_model.pkl', scaler_path='models/scaler.pkl'):
@@ -58,4 +48,3 @@ def save_model_and_scaler(model, scaler, model_path='models/xgb_model.pkl', scal
     
     with open(scaler_path, 'wb') as f:
         pickle.dump(scaler, f)
-
